@@ -1,8 +1,7 @@
 # Vulnerable Inventory Management System
+This mini Flask application mimics an inventory management portal that a small warehouse team might use.  
 
 ## WARNING: This project is intentionally vulnerable. Do not deploy it on the public internet.
-
-This mini Flask application mimics an inventory management portal that a small warehouse team might use.  
 
 ## Features (and Intentional Flaws)
 
@@ -25,6 +24,7 @@ python app.py        # start the vulnerable server on http://localhost:7000
 Default demo credentials are listed in `setup_db.py`.
 
 ## Educational use only
+
 
 
 
