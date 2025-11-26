@@ -42,7 +42,6 @@ def init_db(db_path: str = "inventory.db") -> None:
         """
     )
 
-    # Seed demo accounts with plaintext passwords on purpose.
     users = [
         ("admin", "admin123", "admin"),
         ("auditor", "auditor123", "auditor"),
@@ -79,4 +78,5 @@ if __name__ == "__main__":
     db_file = Path("inventory.db")
     init_db(db_file.as_posix())
     print(f"Database initialized at {db_file.resolve()}")
+
 
