@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-md-6">
+    <h2>Upload Files</h2>
+    <form method="post" enctype="multipart/form-data" class="card card-body">
+      <div class="mb-3">
+        <label class="form-label">Choose anything (scripts allowed)</label>
+        <input class="form-control" type="file" name="file">
+      </div>
+      <button class="btn btn-warning">Upload</button>
+    </form>
+  </div>
+  <div class="col-md-6">
+    <h2>Your Files</h2>
+    <ul class="list-group">
+      {% for file in uploads %}
+      <li class="list-group-item d-flex justify-content-between align-items-center">
+        {{ file['original_filename'] }}
+        <a href="{{ url_for('get_upload', filename=file['filename']) }}" class="btn btn-sm btn-outline-secondary">Open</a>
+      </li>
+      {% else %}
+      <li class="list-group-item text-muted">Nothing uploaded yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <h2>Edit Item #{{ item['id'] }}</h2>
+    <form method="post" class="card card-body">
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Name</label>
+          <input type="text" class="form-control" name="name" value="{{ item['name'] }}">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Quantity</label>
+          <input type="number" class="form-control" name="quantity" value="{{ item['quantity'] }}">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Unit Cost</label>
+          <input type="number" class="form-control" name="unit_cost" value="{{ item['unit_cost'] }}" step="0.01">
+        </div>
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Notes</label>
+          <input type="text" class="form-control" name="description" value="{{ item['description'] }}">
+        </div>
+      </div>
+      <button class="btn btn-primary">Update</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
