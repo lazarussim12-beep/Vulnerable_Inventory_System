@@ -11,9 +11,8 @@ python setup_db.py   # run once to create inventory.db with demo data
 python app.py        # start the vulnerable server on http://localhost:7000
 ```
 
-Default demo credentials are listed in `setup_db.py`.
-
 ## Educational use only
+
 
 
 
