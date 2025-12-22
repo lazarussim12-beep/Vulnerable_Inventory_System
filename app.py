@@ -20,7 +20,6 @@ app.secret_key = "hardcoded_inventory_secret_987"
 app.config["DEBUG"] = True  
 app.config["UPLOAD_FOLDER"] = "uploads"
 app.config["JWT_SECRET"] = "inventory_jwt"  
-
 os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"txt", "pdf", "png", "jpg", "jpeg", "gif", "php", "ps1"}
@@ -50,6 +49,7 @@ def login():
         password = request.form.get("password")
 
         conn = get_db()
+        # VULNERABILITY: SQL injection due to f-string
         query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
         user = conn.execute(query).fetchone()
         conn.close()
@@ -59,6 +59,7 @@ def login():
             session["username"] = user["username"]
             session["role"] = user["role"]
 
+            # VULNERABILITY: unsigned JWT without expiration
             payload = {
                 "sub": user["id"],
                 "username": user["username"],
@@ -80,10 +81,11 @@ def register():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
-        role = request.form.get("role") or "staff"
+        role = "staff"
 
         conn = get_db()
         try:
+            # VULNERABILITY: SQL injection + plaintext password
             conn.execute(
                 f"INSERT INTO users (username, password, role) VALUES ('{username}', '{password}', '{role}')"
             )
@@ -105,6 +107,7 @@ def dashboard():
 
     filter_value = request.args.get("filter", "")
     conn = get_db()
+    # VULNERABILITY: filter value directly in query
     items = conn.execute(
         f"SELECT * FROM items WHERE name LIKE '%{filter_value}%' ORDER BY last_updated DESC"
     ).fetchall()
@@ -135,6 +138,7 @@ def add_item():
         unit_cost = request.form.get("unit_cost", 0)
 
         conn = get_db()
+        # VULNERABILITY: direct string interpolation + no validation
         conn.execute(
             f"INSERT INTO items (name, description, quantity, unit_cost, created_by) "
             f"VALUES ('{name}', '{description}', {quantity}, {unit_cost}, {session['user_id']})"
@@ -159,6 +163,7 @@ def edit_item(item_id):
         quantity = request.form.get("quantity", 0)
         unit_cost = request.form.get("unit_cost", 0)
 
+        # VULNERABILITY: IDOR - no ownership or role checks
         conn.execute(
             f"UPDATE items SET name = '{name}', description = '{description}', quantity = {quantity}, "
             f"unit_cost = {unit_cost}, last_updated = datetime('now') WHERE id = {item_id}"
@@ -179,6 +184,7 @@ def edit_item(item_id):
 
 @app.route("/items/delete/<int:item_id>", methods=["POST"])
 def delete_item(item_id):
+    # VULNERABILITY: No authentication or CSRF checks
     conn = get_db()
     conn.execute(f"DELETE FROM items WHERE id = {item_id}")
     conn.commit()
@@ -189,6 +195,7 @@ def delete_item(item_id):
 
 @app.route("/admin")
 def admin():
+    # VULNERABILITY: open admin panel
     conn = get_db()
     users = conn.execute("SELECT * FROM users ORDER BY id DESC").fetchall()
     logs = conn.execute(
@@ -201,6 +208,7 @@ def admin():
 
 @app.route("/api/items")
 def api_items():
+    # VULNERABILITY: Accept arbitrary SQL fragments
     order = request.args.get("order", "id")
     limit = request.args.get("limit", "50")
     conn = get_db()
@@ -231,6 +239,7 @@ def upload():
             flash("Choose a file first.", "error")
             return redirect(url_for("upload"))
 
+        # VULNERABILITY: accepts dangerous extensions, reuses filename
         if allowed_file(file.filename):
             filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
             file.save(filepath)
@@ -258,6 +267,7 @@ def upload():
 
 @app.route("/uploads/<path:filename>")
 def get_upload(filename):
+    # VULNERABILITY: No validation, allows traversal if filename crafted
     return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
 
 
@@ -275,5 +285,3 @@ def allowed_file(filename: str) -> bool:
 if __name__ == "__main__":
     init_db()
     app.run(host="0.0.0.0", port=7000, debug=True)
-
-
